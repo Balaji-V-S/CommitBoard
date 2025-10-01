@@ -8,6 +8,21 @@
   color: #d6deeb; /* light text */
 }
 
+.card-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.avatar {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%; /* make it round */
+  border: 2px solid #1d3b53;
+  object-fit: cover;
+}
+
 .dashboard-title {
   text-align: center;
   font-size: 2rem;
