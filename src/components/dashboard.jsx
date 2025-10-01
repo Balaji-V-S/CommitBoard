@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import GitHubCalendar from "react-github-calendar";
 import teamData from "../data/team.json";
+import "./Dashboard.css"; // 👈 Import vanilla CSS
 
 export default function Dashboard() {
     const [stats, setStats] = useState({});
@@ -50,40 +51,32 @@ export default function Dashboard() {
     }, []);
 
     return (
-        <div className="min-h-screen bg-gray-50 p-8">
-            <h1 className="text-3xl font-bold text-center mb-10 text-gray-800">
-                Commitors Month Dashboard
-            </h1>
+        <div className="dashboard">
+            <h1 className="dashboard-title">Commitors Month Dashboard</h1>
 
-            <div className="grid gap-8 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+            <div className="dashboard-grid">
                 {teamData.map((member, index) => {
                     const userStats = stats[member.username] || {};
                     return (
-                        <div
-                            key={index}
-                            className="bg-white border border-gray-200 rounded-2xl shadow-md hover:shadow-xl transition-transform transform hover:-translate-y-1 p-6 flex flex-col"
-                        >
-                            <div className="mb-4">
-                                <h2 className="text-xl font-semibold text-gray-900">
-                                    {member.name}
-                                </h2>
-                                <p className="text-gray-500 text-sm">@{member.username}</p>
+                        <div key={index} className="card">
+                            <div className="card-header">
+                                <h2>{member.name}</h2>
+                                <p>@{member.username}</p>
                             </div>
 
-                            <div className="flex flex-wrap gap-2 mb-4">
-                                <span className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium">
+                            <div className="badges">
+                                <span className="badge badge-blue">
                                     Contributions: {userStats.contributions ?? "-"}
                                 </span>
-                                <span className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-medium">
+                                <span className="badge badge-green">
                                     PRs: {userStats.prs ?? "-"}
                                 </span>
-                                <span className="px-3 py-1 bg-purple-100 text-purple-800 rounded-full text-sm font-medium">
+                                <span className="badge badge-purple">
                                     Issues: {userStats.issues ?? "-"}
                                 </span>
                             </div>
 
-                            {/* GitHub heatmap */}
-                            <div className="overflow-x-auto">
+                            <div className="calendar">
                                 <GitHubCalendar
                                     username={member.username}
                                     blockSize={12}

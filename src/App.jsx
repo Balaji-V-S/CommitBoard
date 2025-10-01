@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import Dashboard from './pages/dashboard'
+import Dashboard from './components/dashboard'
 import './App.css'
 
 function App() {
