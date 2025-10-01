@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import GitHubCalendar from "react-github-calendar";
 import teamData from "../data/team.json";
 import favicon from "/favicon.ico"; // fallback image
-import "./Dashboard.css";
+import "../styles/dashboard.css";
 
 export default function Dashboard() {
   const [stats, setStats] = useState({});
@@ -109,7 +109,7 @@ export default function Dashboard() {
                   blockSize={12}
                   blockMargin={4}
                   fontSize={12}
-                  hideTotalCount
+                  hideTotalCount={false}
                 />
               </div>
             </div>

@@ -1,0 +1,20 @@
+.dashboard-footer {
+  margin-top: 3rem;
+  padding: 1rem 2rem;
+  display: flex;
+  justify-content: space-between; /* text left, badge right */
+  align-items: center;
+  font-size: 0.9rem;
+  color: #7f8caa;
+  border-top: 1px solid #1d3b53;
+}
+
+.github-badge {
+  height: 28px; /* bigger */
+  vertical-align: middle;
+  transition: transform 0.2s;
+}
+
+.github-badge:hover {
+  transform: scale(1.1);
+}
