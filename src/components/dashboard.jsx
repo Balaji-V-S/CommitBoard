@@ -8,64 +8,43 @@ export default function Dashboard() {
   const [stats, setStats] = useState({});
   const [avatars, setAvatars] = useState({});
   const GITHUB_API = "https://api.github.com/graphql";
-  const TOKEN = import.meta.env.VITE_GITHUB_TOKEN;
+  const TOKEN = import.meta.env.GITHUB_TOKEN;
 
   useEffect(() => {
-    async function fetchStats() {
-      const results = {};
-      const avatarsFetched = {};
-      for (let member of teamData) {
-        const query = `
-          query {
-            user(login: "${member.username}") {
-              avatarUrl
-              contributionsCollection {
-                contributionCalendar {
-                  totalContributions
-                }
-                pullRequestContributions(first: 1) { totalCount }
-                issueContributions(first: 1) { totalCount }
-              }
-            }
-          }
-        `;
-        try {
-          const res = await fetch(GITHUB_API, {
-            method: "POST",
-            headers: {
-              Authorization: `Bearer ${TOKEN}`,
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ query }),
-          });
+  async function fetchStats() {
+    const results = {};
+    const avatarsFetched = {};
 
-          const json = await res.json();
-          const user = json.data.user;
+    for (let member of teamData) {
+      try {
+        const res = await fetch(`/api/fetchstats?username=${member.username}`);
+        const user = await res.json();
 
-          if (user) {
-            const data = user.contributionsCollection;
-            results[member.username] = {
-              contributions: data.contributionCalendar.totalContributions,
-              prs: data.pullRequestContributions.totalCount,
-              issues: data.issueContributions.totalCount,
-            };
+        if (user && user.contributionsCollection) {
+          const data = user.contributionsCollection;
+          results[member.username] = {
+            contributions: data.contributionCalendar.totalContributions,
+            prs: data.pullRequestContributions.totalCount,
+            issues: data.issueContributions.totalCount,
+          };
 
-            // store avatar
-            avatarsFetched[member.username] = user.avatarUrl || favicon;
-          } else {
-            // fallback if user not found
-            avatarsFetched[member.username] = favicon;
-          }
-        } catch (err) {
-          console.error("Error fetching GitHub data:", err);
+          avatarsFetched[member.username] = user.avatarUrl || favicon;
+        } else {
           avatarsFetched[member.username] = favicon;
         }
+      } catch (err) {
+        console.error("Error fetching via serverless:", err);
+        avatarsFetched[member.username] = favicon;
       }
-      setStats(results);
-      setAvatars(avatarsFetched);
     }
-    fetchStats();
-  }, []);
+
+    setStats(results);
+    setAvatars(avatarsFetched);
+  }
+
+  fetchStats();
+}, []);
+
 
   return (
     <div className="dashboard">

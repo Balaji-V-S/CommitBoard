@@ -56,7 +56,7 @@ Create a JSON file at `src/data/team.json` with your team members:
 3. Create a `.env` file in the project root:
 
 ```env
-VITE_GITHUB_TOKEN=your_github_token_here
+GITHUB_TOKEN=your_github_token_here  //enter your API-KEY in Env Var while hosting
 ```
 
 > **Note:** This token is used to fetch GitHub contributions. Keep it secret.
