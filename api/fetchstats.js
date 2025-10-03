@@ -1,15 +1,15 @@
 export default async function handler(req, res) {
     const ALLOWED_ORIGINS = [
-        "https://commit-board.vercel.app/"
+        "https://commit-board.vercel.app"
     ];
 
     const origin = req.headers.origin;
-    if (!origin || !ALLOWED_ORIGINS.includes(origin)) {
+    if (origin && !ALLOWED_ORIGINS.includes(origin)) {
         return res.status(403).json({ error: "Forbidden" });
     }
 
     res.setHeader("Access-Control-Allow-Origin", origin);
-    res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
+    res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
     res.setHeader("Access-Control-Allow-Headers", "Content-Type");
 
     if (req.method === "OPTIONS") {
