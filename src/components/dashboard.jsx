@@ -7,43 +7,29 @@ import "../styles/dashboard.css";
 export default function Dashboard() {
   const [stats, setStats] = useState({});
   const [avatars, setAvatars] = useState({});
-  const GITHUB_API = "https://api.github.com/graphql";
-  const TOKEN = import.meta.env.GITHUB_TOKEN;
 
   useEffect(() => {
   async function fetchStats() {
-    const results = {};
-    const avatarsFetched = {};
+    try {
+      const res = await fetch("/api/fetch-stats", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ team: teamData }),
+      });
 
-    for (let member of teamData) {
-      try {
-        const res = await fetch(`/api/fetchstats?username=${member.username}`);
-        const user = await res.json();
-
-        if (user && user.contributionsCollection) {
-          const data = user.contributionsCollection;
-          results[member.username] = {
-            contributions: data.contributionCalendar.totalContributions,
-            prs: data.pullRequestContributions.totalCount,
-            issues: data.issueContributions.totalCount,
-          };
-
-          avatarsFetched[member.username] = user.avatarUrl || favicon;
-        } else {
-          avatarsFetched[member.username] = favicon;
-        }
-      } catch (err) {
-        console.error("Error fetching via serverless:", err);
-        avatarsFetched[member.username] = favicon;
-      }
+      const json = await res.json();
+      setStats(json.stats);
+      setAvatars(json.avatars);
+    } catch (err) {
+      console.error("Error fetching stats:", err);
     }
-
-    setStats(results);
-    setAvatars(avatarsFetched);
   }
 
   fetchStats();
 }, []);
+
 
 
   return (
