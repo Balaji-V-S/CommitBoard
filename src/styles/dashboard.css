@@ -1,7 +1,6 @@
 /* Dashboard Base Styles */
 .dashboard {
   min-height: 100vh;
-  background: linear-gradient(135deg, #011627 0%, #0d1929 100%);
   padding: 1rem;
   font-family: "Segoe UI", system-ui, Avenir, Helvetica, Arial, sans-serif;
   color: #d6deeb;
@@ -68,8 +67,6 @@
     0 4px 15px rgba(130, 170, 255, 0.1),
     inset 0 1px 0 rgba(255, 255, 255, 0.12);
   color: #d6deeb;
-  width: 100%;
-  max-width: 100%;
   position: relative;
   text-align: center;
 }
@@ -204,7 +201,6 @@
 }
 
 .calendar {
-  overflow-x: auto; /* Allow horizontal scrolling */
   display: flex;
   align-items: center;
   flex-direction: column;
@@ -214,6 +210,7 @@
   border: 1px solid rgba(130, 170, 255, 0.2);
   margin-top: 1rem;
   backdrop-filter: blur(10px);
+  overflow-x: auto;
 }
 
 .calendar-title {

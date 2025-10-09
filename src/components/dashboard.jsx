@@ -12,8 +12,6 @@ export default function Dashboard() {
   const [error, setError] = useState(null);
   const [sortBy, setSortBy] = useState("name"); // name, contributions, prs, issues
   const [sortOrder, setSortOrder] = useState("desc"); // asc, desc
-  const [filterTeam, setFilterTeam] = useState("all");
-  const [filterRole, setFilterRole] = useState("all");
 
   useEffect(() => {
     async function fetchStats() {
@@ -51,27 +49,12 @@ export default function Dashboard() {
     fetchStats();
   }, []);
 
-  // Get unique teams and roles for filter options
-  const uniqueTeams = useMemo(() => {
-    const teams = [...new Set(teamData.map(member => member.team))].filter(Boolean);
-    return teams;
-  }, []);
+  // Sort team data
+  const sortedData = useMemo(() => {
+    const data = [...teamData];
 
-  const uniqueRoles = useMemo(() => {
-    const roles = [...new Set(teamData.map(member => member.role))].filter(Boolean);
-    return roles;
-  }, []);
-
-  // Filter and sort team data
-  const filteredAndSortedData = useMemo(() => {
-    let filtered = teamData.filter(member => {
-      const teamMatch = filterTeam === "all" || member.team === filterTeam;
-      const roleMatch = filterRole === "all" || member.role === filterRole;
-      return teamMatch && roleMatch;
-    });
-
-    // Sort the filtered data
-    filtered.sort((a, b) => {
+    // Sort the data
+    data.sort((a, b) => {
       let aValue, bValue;
 
       switch (sortBy) {
@@ -103,8 +86,8 @@ export default function Dashboard() {
       }
     });
 
-    return filtered;
-  }, [teamData, stats, sortBy, sortOrder, filterTeam, filterRole]);
+    return data;
+  }, [teamData, stats, sortBy, sortOrder]);
 
   const handleSortChange = (newSortBy) => {
     if (sortBy === newSortBy) {
@@ -149,20 +132,12 @@ export default function Dashboard() {
         sortBy={sortBy}
         sortOrder={sortOrder}
         onSortChange={handleSortChange}
-        filterTeam={filterTeam}
-        filterRole={filterRole}
-        onTeamChange={setFilterTeam}
-        onRoleChange={setFilterRole}
-        uniqueTeams={uniqueTeams}
-        uniqueRoles={uniqueRoles}
-        totalCount={teamData.length}
-        filteredCount={filteredAndSortedData.length}
         loading={loading}
       />
 
       {/* Contributors Grid */}
       <main className="dashboard-grid">
-        {filteredAndSortedData.map((member, index) => {
+        {sortedData.map((member, index) => {
           const userStats = stats[member.username] || {};
           const avatar = avatars[member.username] || favicon;
 
@@ -180,10 +155,6 @@ export default function Dashboard() {
                   <h2>{member.name}</h2>
                   <div className="contributor-details">
                     <p>@{member.username}</p>
-                    <div className="contributor-tags">
-                      {member.role && <span className="member-role">{member.role}</span>}
-                      {member.team && <span className="member-team">{member.team}</span>}
-                    </div>
                   </div>
                 </div>
               </header>
@@ -274,14 +245,12 @@ export default function Dashboard() {
       </main>
 
       {/* Empty State */}
-      {filteredAndSortedData.length === 0 && !loading && !error && (
+      {sortedData.length === 0 && !loading && !error && (
         <div className="no-results" role="status">
           <h3>No Contributors Found</h3>
-          <p>No team members match the current filters. Try adjusting your search criteria.</p>
+          <p>No team members to display.</p>
         </div>
       )}
-
-
     </div>
   );
 }
