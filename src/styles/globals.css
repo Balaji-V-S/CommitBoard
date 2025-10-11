@@ -1,11 +1,12 @@
+@import "tailwindcss";
+
 :root {
   font-family: "Segoe UI", system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
 
-  /* Night Owl colors */
-  color: #d6deeb;            /* soft white-blue text */
-  background-color: #011627; /* deep navy background */
+  color: #d6deeb;            
+  background-color: #011627;
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -13,17 +14,6 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Links */
-a {
-  font-weight: 500;
-  color: #82aaff; /* accent blue */
-  text-decoration: none;
-}
-a:hover {
-  color: #c792ea; /* purple hover */
-}
-
-/* Body */
 body {
   margin: 0;
   min-width: 320px;
