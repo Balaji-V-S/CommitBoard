@@ -99,8 +99,8 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="dashboard">
-      <header className="dashboard-header">
+    <div className="dashboard min-h-screen p-4">
+      <header className="dashboard-header mb-12">
         <h1 className="dashboard-title">Contributors Dashboard</h1>
       </header>
 
@@ -142,24 +142,24 @@ export default function Dashboard() {
           const avatar = avatars[member.username] || favicon;
 
           return (
-            <article key={member.username || index} className="card">
-              <header className="card-header">
+            <article key={member.username || index} className="card text-center">
+              <header className="card-header mb-8 flex items-center justify-center gap-6">
                 <img
                   src={avatar}
                   alt={`${member.name}'s GitHub avatar`}
-                  className="avatar"
+                  className="avatar h-16 w-16 flex-shrink-0 rounded-full object-cover"
                   onError={(e) => (e.currentTarget.src = favicon)}
                   loading="lazy"
                 />
-                <div className="contributor-info">
-                  <h2>{member.name}</h2>
-                  <div className="contributor-details">
-                    <p>@{member.username}</p>
+                <div className="contributor-info min-w-0">
+                  <h2 className="mb-2 text-2xl font-bold text-white">{member.name}</h2>
+                  <div className="contributor-details flex items-center justify-center gap-4">
+                    <p className="text-sm text-[#7fdbca] opacity-85">@{member.username}</p>
                   </div>
                 </div>
               </header>
 
-              <div className="badges">
+              <div className="badges my-6 grid grid-cols-[repeat(auto-fit,minmax(120px,1fr))] gap-3">
                 <div className="badge badge-blue">
                   <span>Contributions: {userStats.contributions ?? "-"}</span>
                 </div>
@@ -171,8 +171,8 @@ export default function Dashboard() {
                 </div>
               </div>
 
-              <div className="calendar">
-                <h4 className="calendar-title">Contribution Activity</h4>
+              <div className="calendar mt-4">
+                <h4 className="calendar-title mb-4 text-center text-lg font-semibold text-[#82aaff]">Contribution Activity</h4>
                 <div style={{ overflowX: 'auto', width: '100%' }}>
                   <GitHubCalendar
                     username={member.username}

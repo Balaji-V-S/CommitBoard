@@ -50,10 +50,10 @@ const SortingControls = ({
                 title={description}
                 disabled={loading}
               >
-                <span className="sort-label">{label}</span>
+                <span className="sort-label whitespace-nowrap font-medium">{label}</span>
                 {sortBy === key && (
                   <span 
-                    className="sort-indicator" 
+                    className="sort-indicator ml-1 text-sm font-bold opacity-90" 
                     aria-hidden="true"
                     title={sortOrder === "asc" ? "Ascending order" : "Descending order"}
                   >
