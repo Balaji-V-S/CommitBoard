@@ -1,16 +1,27 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import GitHubCalendar from "react-github-calendar";
-import favicon from "/favicon.ico";
-import teamData from '../data/team.json'
+import SortingControls from "./SortingControls";
+import teamData from "../data/team.json";
+import favicon from "/favicon.ico"; // fallback image
+import "../styles/dashboard.css";
 
 export default function Dashboard() {
   const [stats, setStats] = useState({});
   const [avatars, setAvatars] = useState({});
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [sortBy, setSortBy] = useState("name"); // name, contributions, prs, issues
+  const [sortOrder, setSortOrder] = useState("desc"); // asc, desc
 
   useEffect(() => {
     async function fetchStats() {
       try {
-        const res = await fetch("/api/fetch-stats", {
+        setLoading(true);
+        setError(null);
+        
+        const apiUrl = import.meta.env.DEV ? 'http://localhost:3001/api/fetch-stats' : '/api/fetch-stats';
+        
+        const res = await fetch(apiUrl, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -18,84 +29,228 @@ export default function Dashboard() {
           body: JSON.stringify({ team: teamData }),
         });
 
+        if (!res.ok) {
+          const errorText = await res.text();
+          setError(`API Error: ${res.status} - ${errorText}`);
+          return;
+        }
+
         const json = await res.json();
-        setStats(json.stats);
-        setAvatars(json.avatars);
+        
+        setStats(json.stats || {});
+        setAvatars(json.avatars || {});
       } catch (err) {
-        console.error("Error fetching stats:", err);
+        setError(`Network Error: ${err.message}`);
+      } finally {
+        setLoading(false);
       }
     }
 
     fetchStats();
   }, []);
 
-  return (
-    <div className="min-h-screen bg-[#011627] p-8 font-[system-ui] text-[#d6deeb]">
-      <h1 className="text-center text-3xl font-bold text-[#82aaff] mb-10">
-        Commitors Month Dashboard
-      </h1>
+  // Sort team data
+  const sortedData = useMemo(() => {
+    const data = [...teamData];
 
-      <div className="flex flex-col gap-6 w-full max-w-2xl mx-auto">
-        {teamData.map((member, index) => {
+    // Sort the data
+    data.sort((a, b) => {
+      let aValue, bValue;
+
+      switch (sortBy) {
+        case "contributions":
+          aValue = stats[a.username]?.contributions || 0;
+          bValue = stats[b.username]?.contributions || 0;
+          break;
+        case "prs":
+          aValue = stats[a.username]?.prs || 0;
+          bValue = stats[b.username]?.prs || 0;
+          break;
+        case "issues":
+          aValue = stats[a.username]?.issues || 0;
+          bValue = stats[b.username]?.issues || 0;
+          break;
+        case "name":
+        default:
+          aValue = a.name.toLowerCase();
+          bValue = b.name.toLowerCase();
+          break;
+      }
+
+      if (sortBy === "name") {
+        return sortOrder === "asc" 
+          ? aValue.localeCompare(bValue)
+          : bValue.localeCompare(aValue);
+      } else {
+        return sortOrder === "asc" ? aValue - bValue : bValue - aValue;
+      }
+    });
+
+    return data;
+  }, [teamData, stats, sortBy, sortOrder]);
+
+  const handleSortChange = (newSortBy) => {
+    if (sortBy === newSortBy) {
+      setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+    } else {
+      setSortBy(newSortBy);
+      setSortOrder("desc");
+    }
+  };
+
+  return (
+    <div className="dashboard">
+      <header className="dashboard-header">
+        <h1 className="dashboard-title">Contributors Dashboard</h1>
+      </header>
+
+      {/* Error Display */}
+      {error && (
+        <div className="error-message" role="alert" aria-live="assertive">
+          <h3>Error Loading Data</h3>
+          <p>{error}</p>
+          <p>Please check the console for more details.</p>
+          {error.includes("GitHub token") && (
+            <p>Make sure you have set up your GITHUB_TOKEN in .env.local file.</p>
+          )}
+          {error.includes("Network Error") && (
+            <p>Make sure the API server is running on port 3001.</p>
+          )}
+        </div>
+      )}
+
+      {/* Loading Display */}
+      {loading && (
+        <div className="loading-message" role="status" aria-live="polite">
+          <h3>Loading GitHub Statistics</h3>
+          <p>Fetching contribution data...</p>
+        </div>
+      )}
+
+      {/* Sorting Controls */}
+      <SortingControls
+        sortBy={sortBy}
+        sortOrder={sortOrder}
+        onSortChange={handleSortChange}
+        loading={loading}
+      />
+
+      {/* Contributors Grid */}
+      <main className="dashboard-grid">
+        {sortedData.map((member, index) => {
           const userStats = stats[member.username] || {};
           const avatar = avatars[member.username] || favicon;
 
           return (
-            <div
-              key={index}
-              className="bg-[#0b253a] border border-[#1d3b53] rounded-2xl p-6 text-[#d6deeb] 
-                         shadow-md hover:shadow-2xl hover:-translate-y-1 transition-transform duration-200"
-            >
-              {/* Header */}
-              <div className="flex items-center gap-3 mb-4">
+            <article key={member.username || index} className="card">
+              <header className="card-header">
                 <img
                   src={avatar}
-                  alt={`${member.username} avatar`}
+                  alt={`${member.name}'s GitHub avatar`}
+                  className="avatar"
                   onError={(e) => (e.currentTarget.src = favicon)}
-                  className="w-10 h-10 rounded-full border-2 border-[#1d3b53] object-cover"
+                  loading="lazy"
                 />
-                <div>
-                  <h2 className="text-xl font-semibold">{member.name}</h2>
-                  <p className="text-[#7fdbca] text-sm mt-1">@{member.username}</p>
+                <div className="contributor-info">
+                  <h2>{member.name}</h2>
+                  <div className="contributor-details">
+                    <p>@{member.username}</p>
+                  </div>
+                </div>
+              </header>
+
+              <div className="badges">
+                <div className="badge badge-blue">
+                  <span>Contributions: {userStats.contributions ?? "-"}</span>
+                </div>
+                <div className="badge badge-green">
+                  <span>PRs: {userStats.prs ?? "-"}</span>
+                </div>
+                <div className="badge badge-purple">
+                  <span>Issues: {userStats.issues ?? "-"}</span>
                 </div>
               </div>
 
-              {/* Badges */}
-              <div className="flex flex-wrap gap-2 my-4">
-                <span className="inline-block px-3 py-1 rounded-full text-sm font-medium bg-[#1d3b53] text-[#82aaff]">
-                  Contributions: {userStats.contributions ?? "-"}
-                </span>
-                <span className="inline-block px-3 py-1 rounded-full text-sm font-medium bg-[#1d3b53] text-[#addb67]">
-                  PRs: {userStats.prs ?? "-"}
-                </span>
-                <span className="inline-block px-3 py-1 rounded-full text-sm font-medium bg-[#1d3b53] text-[#c792ea]">
-                  Issues: {userStats.issues ?? "-"}
-                </span>
-              </div>
-              <div class="cal">
-                <div className="w-full overflow-hidden">
-                  <div className="scale-95 sm:scale-100 origin-top">
-                    <GitHubCalendar
-                      username={member.username}
-                      blockSize={12}
-                      blockMargin={4}
-                      fontSize={12}
-                      hideTotalCount={false}
-                    />
-                  </div>
+              <div className="calendar">
+                <h4 className="calendar-title">Contribution Activity</h4>
+                <div style={{ overflowX: 'auto', width: '100%' }}>
+                  <GitHubCalendar
+                    username={member.username}
+                    blockSize={12}
+                    blockMargin={4}
+                    fontSize={12}
+                    hideTotalCount={false}
+                    colorScheme="dark"
+                    renderBlock={(block, activity) => {
+                      const enhancedBlock = React.cloneElement(block, {
+                        'data-tooltip': `${activity.count} contribution${activity.count !== 1 ? 's' : ''} on ${new Date(activity.date).toLocaleDateString('en-US', { 
+                          weekday: 'long', 
+                          year: 'numeric', 
+                          month: 'long', 
+                          day: 'numeric' 
+                        })}`,
+                        className: `${block.props.className} contribution-block`,
+                        onMouseEnter: (e) => {
+                          const tooltip = document.createElement('div');
+                          tooltip.className = 'contribution-tooltip';
+                          tooltip.innerHTML = `
+                            <div class="tooltip-header">${member.name}</div>
+                            <div class="tooltip-date">${new Date(activity.date).toLocaleDateString('en-US', { 
+                              weekday: 'long', 
+                              year: 'numeric', 
+                              month: 'long', 
+                              day: 'numeric' 
+                            })}</div>
+                            <div class="tooltip-count">${activity.count} contribution${activity.count !== 1 ? 's' : ''}</div>
+                          `;
+                          document.body.appendChild(tooltip);
+
+                          const rect = e.target.getBoundingClientRect();
+                          const tooltipRect = tooltip.getBoundingClientRect();
+                          
+                          // Position tooltip above the block, centered
+                          let left = rect.left + window.scrollX + (rect.width / 2) - (tooltipRect.width / 2);
+                          let top = rect.top + window.scrollY - tooltipRect.height - 8;
+                          
+                          // Ensure tooltip stays within viewport
+                          if (left < 10) left = 10;
+                          if (left + tooltipRect.width > window.innerWidth - 10) {
+                            left = window.innerWidth - tooltipRect.width - 10;
+                          }
+                          if (top < 10) {
+                            // If not enough space above, show below
+                            top = rect.bottom + window.scrollY + 8;
+                          }
+                          
+                          tooltip.style.left = `${left}px`;
+                          tooltip.style.top = `${top}px`;
+                          tooltip.style.opacity = '1';
+                        },
+                        onMouseLeave: () => {
+                          const tooltips = document.querySelectorAll('.contribution-tooltip');
+                          tooltips.forEach(tooltip => {
+                            tooltip.style.opacity = '0';
+                            setTimeout(() => tooltip.remove(), 200);
+                          });
+                        }
+                      });
+                      return enhancedBlock;
+                    }}
+                  />
                 </div>
-                <style>
-                  {` .cal svg {
-                      width: 100% !important;
-                      height: auto !important;
-                      }
-                  `}
-                </style>
               </div>
-            </div>
+            </article>
           );
         })}
-      </div>
+      </main>
+
+      {/* Empty State */}
+      {sortedData.length === 0 && !loading && !error && (
+        <div className="no-results" role="status">
+          <h3>No Contributors Found</h3>
+          <p>No team members to display.</p>
+        </div>
+      )}
     </div>
   );
 }
