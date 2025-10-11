@@ -20,7 +20,7 @@ CommitBoard is a React + Vite dashboard that visualizes a team’s GitHub activi
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/yourusername/commitboard.git
+git clone https://github.com/Balaji-V-S/CommitBoard.git
 cd commitboard
 ```
 
@@ -77,8 +77,10 @@ The dashboard should now be available at `http://localhost:5173`.
 
 ```
 src/
+ ├─ api/fetch-stats   # serverless function to hide Github PAT from frontend  
  ├─ components/       # React components (Dashboard.jsx)
  ├─ data/             # team.json file
+ ├─ styles/           # stylesheets for components  
  ├─ .env              # for storing the GITHUB_TOKEN    
  ├─ App.jsx
  └─ main.jsx
