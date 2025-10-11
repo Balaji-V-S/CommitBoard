@@ -67,3 +67,21 @@ button:focus-visible {
     color: #111;
   }
 }
+
+/* Dashboard Base Styles */
+.dashboard {
+  min-height: 100vh;
+  font-family: "Segoe UI", system-ui, Avenir, Helvetica, Arial, sans-serif;
+  color: #d6deeb;
+}
+
+.dashboard-title {
+  text-align: center;
+  font-size: clamp(2rem, 5vw, 3rem);
+  font-weight: 700;
+  background: linear-gradient(135deg, #82aaff 0%, #c792ea 50%, #7fdbca 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  letter-spacing: -0.02em;
+}
