@@ -1,12 +1,22 @@
 export default async function handler(req, res) {
-  const ALLOWED_ORIGIN = "https://commit-board.vercel.app"; // Change this to your frontend URL in production
+  const ALLOWED_ORIGINS = [
+    "https://commit-board.vercel.app", // production
+    "http://localhost:3000", // vercel dev port
+    "http://localhost:5173"  // vite dev port
+  ];
+  
   // CORS
   const origin = req.headers.origin;
-  if(origin !== ALLOWED_ORIGIN) {
+  
+  // In development, allow requests without origin (direct server requests)
+  const isAllowedOrigin = ALLOWED_ORIGINS.includes(origin); //removed null origin access
+  
+  if (!isAllowedOrigin) {
     return res.status(403).json({ error: "Forbidden" });
   }
 
-  res.setHeader("Access-Control-Allow-Origin", ALLOWED_ORIGIN);
+  const allowedOrigin = origin || ALLOWED_ORIGINS[0];
+  res.setHeader("Access-Control-Allow-Origin", allowedOrigin);
   res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
 
@@ -22,6 +32,12 @@ export default async function handler(req, res) {
 
   if (!team || !Array.isArray(team)) {
     return res.status(400).json({ error: "Missing or invalid team array" });
+  }
+
+  // Check if GitHub token is available
+  if (!process.env.GITHUB_TOKEN) {
+    console.error("GITHUB_TOKEN environment variable is not set");
+    return res.status(500).json({ error: "GitHub token not configured" });
   }
 
   const stats = {};

@@ -1,11 +1,14 @@
 [
-  
   {
-    "name":"Aprupshri S R",
-    "username":"Aprupshri"
+    "name": "Aprupshri S R",
+    "username": "Aprupshri",
+    "role": "Frontend Developer",
+    "team": "Development"
   },
   {
     "name": "Balaji V S",
-    "username": "Balaji-V-S"
+    "username": "Balaji-V-S",
+    "role": "Full Stack Developer",
+    "team": "Development"
   }
 ]
